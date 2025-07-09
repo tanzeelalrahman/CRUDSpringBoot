@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weekly Screen Time Summary</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; }
+    table { margin: auto; border-collapse: collapse; width: 80%; }
+    th, td { padding: 12px; border: 1px solid #ccc; }
+    th { background-color: #f2f2f2; }
+    button { margin-bottom: 20px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+
+  <h2>Weekly Screen Time Summary</h2>
+
+  <button id="loadSummaryBtn">Load Weekly Summary</button>
+  <div id="summaryContainer"></div>
+
+  <script>
+    document.getElementById('loadSummaryBtn').addEventListener('click', () => {
+      fetch('/screentime/weekly-summary')
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('summaryContainer');
+          container.innerHTML = '';
+
+          if (data.length === 0) {
+            container.textContent = 'No summary data available.';
+            return;
+          }
+
+          const table = document.createElement('table');
+          const header = table.insertRow();
+          header.innerHTML = '<th>Week (YearWeek)</th><th>Category</th><th>Total Minutes</th>';
+
+          data.forEach(row => {
+            const tr = table.insertRow();
+            tr.insertCell().textContent = row.yearWeek;
+            tr.insertCell().textContent = row.category;
+            tr.insertCell().textContent = row.totalMinutes;
+          });
+
+          container.appendChild(table);
+        })
+        .catch(err => {
+          console.error('Error loading weekly summary:', err);
+          document.getElementById('summaryContainer').textContent = 'Failed to load summary.';
+        });
+    });
+  </script>
+
+</body>
+</html>

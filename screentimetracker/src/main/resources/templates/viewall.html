@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>View All Screentime Entries</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    select { padding: 8px; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background-color: #f4f4f4; }
+  </style>
+</head>
+<body>
+
+  <h2>All Screentime Entries</h2>
+
+  <label for="categoryFilter">Filter by Category:</label>
+  <select id="categoryFilter">
+    <option value="">-- All Categories --</option>
+    <option value="Social">Social</option>
+    <option value="Work">Work</option>
+    <option value="Entertainment">Entertainment</option>
+    <option value="Learning">Learning</option>
+    <option value="Other">Other</option>
+  </select>
+
+  <table id="entriesTable">
+    <thead>
+      <tr>
+        <th>App/Website/Activity</th>
+        <th>Minutes Spent</th>
+        <th>Category</th>
+        <th>Date</th>
+        <th>Notes</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Entries will be populated here -->
+    </tbody>
+  </table>
+
+  
+  <h3>Weekly Summary</h3>
+  <button id="loadSummaryBtn">Load Weekly Summary</button>
+  <div id="summaryContainer"></div>
+
+  <script>
+    document.getElementById('loadSummaryBtn').addEventListener('click', () => {
+      fetch('/screentime/weekly-summary')
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('summaryContainer');
+          container.innerHTML = '';
+
+          if (data.length === 0) {
+            container.textContent = 'No summary data available.';
+            return;
+          }
+
+          const table = document.createElement('table');
+          const header = table.insertRow();
+          header.innerHTML = '<th>Week (YearWeek)</th><th>Category</th><th>Total Minutes</th>';
+
+          data.forEach(row => {
+            const tr = table.insertRow();
+            tr.insertCell().textContent = row.yearWeek;
+            tr.insertCell().textContent = row.category;
+            tr.insertCell().textContent = row.totalMinutes;
+          });
+
+          container.appendChild(table);
+        })
+        .catch(err => {
+          console.error('Error loading weekly summary:', err);
+          document.getElementById('summaryContainer').textContent = 'Failed to load summary.';
+        });
+    });
+  </script>
+
+  <script>
+    const categoryFilter = document.getElementById('categoryFilter');
+    const entriesTableBody = document.querySelector('#entriesTable tbody');
+
+    function fetchAndDisplayEntries(category = '') {
+      let url = 'http://localhost:8080/screentime';
+      if (category) {
+        url += '?category=' + encodeURIComponent(category);
+      }
+
+      fetch(url)
+        .then(res => res.json())
+        .then(entries => {
+          entriesTableBody.innerHTML = '';
+          if (entries.length === 0) {
+            entriesTableBody.innerHTML = '<tr><td colspan="6">No entries found.</td></tr>';
+            return;
+          }
+          entries.forEach(entry => {
+            const dateOnly = entry.date.includes("T") ? entry.date.split("T")[0] : entry.date;
+            entriesTableBody.innerHTML += `
+              <tr>
+                <td>${entry.appName}</td>
+                <td>${entry.minutesSpent}</td>
+                <td>${entry.category}</td>
+                <td>${dateOnly}</td>
+                <td>${entry.notes || ''}</td>
+                <td>
+                  <a href="/editentry.html?id=${entry.id}">Edit</a> | 
+                  <a href="/delete-entry.html?id=${entry.id}">Delete</a>
+                </td>
+              </tr>
+            `;
+          });
+        })
+        .catch(err => {
+          entriesTableBody.innerHTML = '<tr><td colspan="6">Error loading entries.</td></tr>';
+          console.error('Error fetching entries:', err);
+        });
+    }
+
+    // Initial load - fetch all entries
+    fetchAndDisplayEntries();
+
+    // Filter on category change
+    categoryFilter.addEventListener('change', () => {
+      fetchAndDisplayEntries(categoryFilter.value);
+    });
+  </script>
+
+</body>
+</html>

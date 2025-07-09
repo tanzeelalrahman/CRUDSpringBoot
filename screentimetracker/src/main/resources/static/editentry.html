@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Screentime Entry</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    input, select, textarea, button { margin: 10px; padding: 10px; width: 250px; }
+    a { display: inline-block; margin-top: 20px; color: #007bff; text-decoration: none; }
+    #message { color: green; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <h2>Edit Screentime Entry</h2>
+
+  <form id="editForm">
+    <input type="hidden" id="entryId">
+    <input type="text" id="appName" placeholder="App/Website/Activity" required><br>
+    <input type="number" id="minutesSpent" placeholder="Minutes Spent" required><br>
+
+    <select id="category" required>
+      <option value="">Select Category</option>
+      <option>Social</option>
+      <option>Work</option>
+      <option>Entertainment</option>
+      <option>Learning</option>
+      <option>Other</option>
+    </select><br>
+
+    <input type="date" id="date" required><br>
+    <textarea id="notes" placeholder="Optional Notes"></textarea><br>
+
+    <button type="submit">Update Entry</button>
+  </form>
+
+  <div id="message"></div>
+  <a href="/screentime/viewall">← Back to View All</a>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const entryId = urlParams.get('id');
+
+    if (!entryId) {
+      // Redirect to viewall if no ID is provided
+      window.location.href = "/screentime/viewall";
+    }
+
+    const apiUrl = `http://localhost:8080/screentime/${entryId}`;
+
+    // Fetch existing data and populate the form
+    fetch(apiUrl)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('entryId').value = data.id;
+        document.getElementById('appName').value = data.appName;
+        document.getElementById('minutesSpent').value = data.minutesSpent;
+        document.getElementById('category').value = data.category;
+        // Handle date format (strip time if present)
+        const dateOnly = data.date.includes("T") ? data.date.split("T")[0] : data.date;
+        document.getElementById('date').value = dateOnly;
+        document.getElementById('notes').value = data.notes || "";
+      })
+      .catch(err => {
+        console.error("Error fetching entry:", err);
+        document.getElementById('message').textContent = "Unable to load entry.";
+      });
+
+    // Handle form submission (PUT request)
+    document.getElementById('editForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const updatedEntry = {
+        appName: document.getElementById('appName').value,
+        minutesSpent: parseInt(document.getElementById('minutesSpent').value),
+        category: document.getElementById('category').value,
+        date: document.getElementById('date').value,
+        notes: document.getElementById('notes').value
+      };
+
+      fetch(apiUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedEntry)
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('message').textContent = "Entry updated successfully!";
+        // Optional: redirect to view all after short delay
+        setTimeout(() => {
+          window.location.href = "/screentime/viewall";
+        }, 1000);
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById('message').textContent = "Error updating entry.";
+      });
+    });
+  </script>
+
+</body>
+</html>
