@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>View All Students</title>
+  <style>
+    body { font-family: Arial; text-align: center; }
+    table { border-collapse: collapse; width: 60%; margin: 20px auto; }
+    th, td { border: 1px solid #ccc; padding: 10px; }
+    th { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+
+  <h2> All Students</h2>
+
+  <table id="studentTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Grade</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+       fetch('http://localhost:8080/students')
+      .then(res => res.json())
+      .then(data => {
+        const tableBody = document.querySelector('#studentTable tbody');
+        data.forEach(student => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${student.id}</td>
+            <td>${student.name}</td>
+            <td>${student.grade}</td>
+			`;
+          tableBody.appendChild(row);
+        });
+      })
+      .catch(err => {
+        alert("Failed to load data.");
+        console.error(err);
+      });
+  </script>
+
+</body>
+</html>

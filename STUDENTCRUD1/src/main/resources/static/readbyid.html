@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Find Student by ID</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    input[type="number"] {
+      padding: 10px;
+      width: 200px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: blue;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .result {
+      margin-top: 30px;
+      font-size: 18px;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Find Student by ID</h2>
+
+  <form id="readForm">
+    <input type="number" id="studentId" placeholder="Enter Student ID" required />
+    <button type="submit">Search</button>
+  </form>
+
+  <div class="result" id="studentInfo"></div>
+
+  <script>
+    document.getElementById('readForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const id = document.getElementById('studentId').value;
+      const studentInfo = document.getElementById('studentInfo');
+      studentInfo.textContent = 'Loading...';
+
+      fetch(`http://localhost:8080/students/${id}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Student not found');
+          }
+          return response.json();
+        })
+        .then(student => {
+          studentInfo.innerHTML = `
+            <strong>ID:</strong> ${student.id}<br>
+            <strong>Name:</strong> ${student.name}<br>
+            <strong>Grade:</strong> ${student.grade}
+          `;
+          studentInfo.classList.remove('error');
+        })
+        .catch(error => {
+          studentInfo.textContent = error.message;
+          studentInfo.classList.add('error');
+        });
+    });
+  </script>
+
+</body>
+</html>
