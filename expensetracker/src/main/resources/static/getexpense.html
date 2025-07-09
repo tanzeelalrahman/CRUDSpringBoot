@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Get Expense</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    input, button { padding: 10px; font-size: 16px; margin: 5px; }
+    .result { margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+  <h2>Find Expense by ID</h2>
+  <form id="getForm">
+    <input type="number" id="expenseId" placeholder="Expense ID" required>
+    <button type="submit">Search</button>
+  </form>
+
+  <div class="result" id="expenseInfo"></div>
+
+  <script>
+    document.getElementById("getForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const id = document.getElementById("expenseId").value;
+
+      fetch(`http://localhost:8080/expense/${id}`)
+        .then(res => {
+          if (!res.ok) throw new Error("Expense not found");
+          return res.json();
+        })
+        .then(exp => {
+          document.getElementById("expenseInfo").innerHTML = `
+            <strong>Title:</strong> ${exp.title}<br>
+            <strong>Amount:</strong> $${exp.amount}<br>
+            <strong>Category:</strong> ${exp.category}<br>
+            <strong>Date:</strong> ${exp.date}
+          `;
+        })
+        .catch(err => document.getElementById("expenseInfo").textContent = err.message);
+    });
+  </script>
+
+</body>
+</html>

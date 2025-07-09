@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All Expenses</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 40px; }
+    table { border-collapse: collapse; width: 80%; margin: auto; }
+    th, td { border: 1px solid #ccc; padding: 10px; }
+    th { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+
+  <h2>All Expenses</h2>
+  <table id="expenseTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Amount</th>
+        <th>Category</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h3 id="total"></h3>
+
+  <script>
+    fetch("http://localhost:8080/expense")
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("#expenseTable tbody");
+        let total = 0;
+        data.forEach(exp => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${exp.id}</td>
+            <td>${exp.title}</td>
+            <td>${exp.amount}</td>
+            <td>${exp.category}</td>
+            <td>${exp.date}</td>
+          `;
+          total += exp.amount;
+          tbody.appendChild(row);
+        });
+        document.getElementById("total").textContent = `Total: $${total.toFixed(2)}`;
+      })
+      .catch(err => console.error(err));
+  </script>
+
+</body>
+</html>

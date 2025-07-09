@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Update Expense</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    input, button { padding: 10px; margin: 5px; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+  <h2>Update Expense</h2>
+  <form id="updateForm">
+    <input type="number" id="id" placeholder="Expense ID" required><br>
+    <input type="text" id="title" placeholder="Title" required><br>
+    <input type="number" id="amount" placeholder="Amount" required><br>
+    <input type="text" id="category" placeholder="Category" required><br>
+    <input type="date" id="date" required><br>
+    <button type="submit">Update</button>
+  </form>
+
+  <div id="msg"></div>
+
+  <script>
+    document.getElementById("updateForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const id = document.getElementById("id").value;
+      const expense = {
+        title: document.getElementById("title").value,
+        amount: parseFloat(document.getElementById("amount").value),
+        category: document.getElementById("category").value,
+        date: document.getElementById("date").value
+      };
+
+      fetch(`http://localhost:8080/expense/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(expense)
+      })
+      .then(res => res.json())
+      .then(data => document.getElementById("msg").textContent = "Expense updated successfully.")
+      .catch(err => document.getElementById("msg").textContent = "Update failed.");
+    });
+  </script>
+
+</body>
+</html>

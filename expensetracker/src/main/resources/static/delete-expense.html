@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Delete Expense</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    input, button { padding: 10px; font-size: 16px; margin: 5px; }
+  </style>
+</head>
+<body>
+
+  <h2>Delete Expense</h2>
+  <form id="deleteForm">
+    <input type="number" id="expenseId" placeholder="Expense ID" required>
+    <button type="submit">Delete</button>
+  </form>
+
+  <div id="msg"></div>
+
+  <script>
+    document.getElementById("deleteForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const id = document.getElementById("expenseId").value;
+
+      fetch(`http://localhost:8080/expense/${id}`, {
+        method: "DELETE"
+      })
+      .then(res => {
+		console.log("Status", res.status)
+        if (res.ok) {
+          document.getElementById("msg").textContent = `Expense #${id} deleted.`;
+        } else {
+          document.getElementById("msg").textContent = "Delete failed.";
+        }
+      })
+      .catch(err => {
+        document.getElementById("msg").textContent = "Error occurred.";
+        console.error(err);
+      });
+    });
+  </script>
+
+</body>
+</html>
