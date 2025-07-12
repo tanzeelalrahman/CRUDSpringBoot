@@ -169,7 +169,7 @@ The page fetches and displays all expenses.
 
 ---
 
-## 📘 Project 3: Screentime Tracker Web Application
+## 📘 Project 3: Screentime Tracker Web Application (screentimetracker)
 
 A complete Screentime Tracker built using **Spring Boot**, **Spring Data JPA**, and **Thymeleaf**, designed to help users become aware of their digital usage and promote healthier screen habits. Users can add entries, view summaries, filter by category, and manage records — all from one unified interface.
 
